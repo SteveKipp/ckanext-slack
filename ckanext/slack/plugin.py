@@ -1,7 +1,6 @@
 import os
 import pdb
-import ckan.model as model
-import pylons
+import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from slackclient import SlackClient
@@ -23,28 +22,37 @@ class SlackPlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'slack')
 
-    def talk(self, channel, update_type, pkg):
-        msg = "Hi, good news! The {} dataset has been {}!".format(pkg['title'], update_type)
-        slack_client.api_call("chat.postMessage", channel=channel,
-                              text=msg, as_user=True)
+    def talk(self, channel, edit_type, id):
+        pkg = package.Package().get(id)
+        if pkg != None:
+            if pkg.state != 'deleted':
+                if edit_type == 'updated' and pkg.state != 'draft':
+                    msg = "Dataset Notice: The {} dataset has been updated.".format(pkg.title)
+                elif edit_type == 'created':
+                    msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
+            else:
+                msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
+
+            try:
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                       text=msg, as_user=True)
+            except:
+                pass
+
+
 
     def before_update(self, mapper, connection, instance):
         pass
 
     def after_update(self, mapper, connection, instance):
-        data_dict={'id':instance.id}
-        context = {'model': model, 'session': model.Session,
-                   'user': pylons.c.user}
-        pkg = toolkit.get_action('package_show')(context, data_dict)
-        self.talk('general', 'updated', pkg)
-
+        self.talk('general', 'updated', instance.id)
 
 
     def before_insert(self, mapper, connection, instance):
         pass
 
     def after_insert(self, mapper, connection, instance):
-        pass
+        self.talk('general', 'created', instance.id)
 
     def before_delete(self, mapper, connection, instance):
         pass

@@ -70,11 +70,11 @@ class SlackController(base.BaseController):
         #     else:
         #         h.flash_error('Contact your administrator there has been an error saving your Yammer configuration.')
         #
-        # data_dict = {'id': id, 'include_datasets': False}
-        # c.group_dict = get_action('organization_show')(context, data_dict)
-        #
-        # return render('organization/yammer_config.html',
-        #               extra_vars={'title': 'Yammer Configurations'})
+        data_dict = {'id': id, 'include_datasets': False}
+        c.group_dict = get_action('organization_show')(context, data_dict)
+
+        return render('organization/slack_config.html',
+                       extra_vars={'title': 'Slack Configurations'})
 
 
 

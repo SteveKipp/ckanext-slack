@@ -5,6 +5,7 @@ import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from slackclient import SlackClient
+from routes.mapper import SubMapper
 from sqlalchemy.inspection import inspect
 
 BOT_NAME = 'ckan_bot'
@@ -14,14 +15,13 @@ BOT_ID = os.environ.get("BOT_ID")
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
 PREVIOUS_OPERATION = None
-print('previous package id loaded')
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IMapper)
-    # IConfigurer
+    plugins.implements(plugins.IRoutes, inherit=True)
 
-
+    #IConfigurer
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
@@ -71,5 +71,12 @@ class SlackPlugin(plugins.SingletonPlugin):
     def after_delete(self, mapper, connection, instance):
         pass
 
-
+    #IRoutes
+    def before_map(self, map):
+        controller = 'ckanext.slack.controller:SlackController'
+        with SubMapper(map, controller=controller) as m:
+            m.connect('ckanext_slack_config',
+                      '/organization/slack_config/{id}',
+                      action='slack_config', ckan_icon='bullhorn', id='{id}')
+        return map
 

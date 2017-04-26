@@ -1,0 +1,53 @@
+{% extends "organization/edit_base.html" %}
+{% set action_url = h.url_for('') %}
+{% set cancel_url = h.url_for('') %}
+{% set user = c.userobj %}
+{% set org = c.group_dict %}
+
+
+{% import 'macros/form.html' as form %}
+{{ config }}
+{% block subtitle %}{{ _('Slack Configuration') }} - {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+
+{% block slack_configuration %}
+{% if organization and h.check_access('organization_update', {'id': c.id}) %}
+    <h3>Slack configuration options </h3>
+<form class="form-vertical" method="post" action="{{ action_url }}" data-module="basic-form">
+
+    {{ form.input('ckanext.slack.token', id='field-ckanext.slack.token', label=_('Slack Token'), is_required=true )}}
+   <div class="control-group control-select">
+    <label class="control-label" for="field-ckanext.slack.groups">
+           <span title="At least one group Must be selected" class="control-required">*</span>
+
+        Slack Groups</label>
+    <div class="controls ">
+    <select id="field-ckanext.slack.groups" name="sgroups">
+    </select>
+    </div>
+  </div>
+
+    <label class="control-label" for="field-ckanext.slack.actions">Actions</label>
+    {{ form.checkbox('Create', value=True, checked=false, id='create_dataset') }}
+    {{ form.checkbox('Update', value=True, checked=false, id='update_dataset') }}
+    {{ form.checkbox('Delete', value=True, checked=false, id='delete_dataset') }}
+    <div class="form-actions">
+
+        <a class="btn pull-left" href="{{ cancel_url }}">{{ _('Cancel') }}</a>
+        <button class="btn btn-primary" name="save" value="save" type="submit">{{ _('Update Config') }}</button>
+    </div>
+  {{ form.hidden('organization', org.id) }}
+      {{ form.hidden('user_name', user.name) }}
+      {{ form.hidden('user_id', user.id) }}
+
+</form>
+{% else %}
+
+<p>You are not Authorized to update this content</p>
+
+{%  endif %}
+    {% endblock %}
+
+{% endblock %}
+

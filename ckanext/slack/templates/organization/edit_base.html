@@ -1,0 +1,13 @@
+{% ckan_extends %}
+{% set organization = c.group_dict %}
+
+
+{% block content_primary_nav %}
+ {{ super() }}
+
+
+  {% if organization and h.check_access('organization_update', {'id': c.id}) %}
+
+    {{ h.build_nav_icon('ckanext_slack_config', _('Slack'), id=c.group_dict.name) }}
+  {% endif %}
+{% endblock %}

@@ -10,7 +10,7 @@ def slack_bot_update(slack_bot):
     if slack_user.Slack_user().get(slack_bot['id']) == None:
         s = slack_user.Slack_user()
         s.id = slack_bot['id']
-        s.name = slack_bot['bot_id']
+        s.bot_id = slack_bot['bot_id']
         s.token = slack_bot['token']
         groups = [slack_bot['groups']]
         groups = map(int, groups)
@@ -23,7 +23,7 @@ def slack_bot_update(slack_bot):
     else:
         s = slack_user.Slack_user().get(slack_bot['id'])
         s.id = slack_bot['id']
-        s.name = slack_bot['bot_id']
+        s.bot_id = slack_bot['bot_id']
         s.token = slack_bot['token']
         groups = [slack_bot['groups']]
         groups = map(int, groups)

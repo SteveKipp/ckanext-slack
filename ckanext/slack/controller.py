@@ -13,7 +13,6 @@ _ = p.toolkit._
 
 class SlackController(base.BaseController):
     controller = 'ckanext.slack.controller:SlackController'
-
     def slack_config(self, id):
         '''Render the config template with the first custom title.'''
 
@@ -32,7 +31,6 @@ class SlackController(base.BaseController):
 
             #do a try catch here for sending the data objec to the DB after save
             data = dict(p.toolkit.request.POST)
-
             #call the action
 
             #the values for create, update, and delete values need to be passed into
@@ -59,6 +57,7 @@ class SlackController(base.BaseController):
                                  'create_dataset': create_dataset,
                                  'update_dataset': update_dataset,
                                  'delete_dataset': delete_dataset}
+
 
             act = actions.slack_bot_update(slack_bot)
             if act == 'success':

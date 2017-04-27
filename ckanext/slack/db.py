@@ -21,7 +21,7 @@ def init_db(model):
 
         @classmethod
         def get(cls, slack_bot_reference):
-            query = query.filter(or_(cls.name == slack_bot_reference,
+            query = query.filter(or_(cls.bot_id == slack_bot_reference,
                                      cls.id == slack_bot_reference))
             return query.first()
 
@@ -32,7 +32,7 @@ def init_db(model):
     sql = '''
                 CREATE TABLE ckanext_slack_bot (
                     id text NOT NULL PRIMARY KEY,
-                    name text NOT NULL,
+                    bot_id text NOT NULL,
                     token text,
                     groups integer ARRAY,
                     org text,
@@ -79,7 +79,7 @@ def init_db(model):
     global slack_bot_table
     slack_bot_table = sa.Table('ckanext_slack_bot', model.meta.metadata,
         sa.Column('id', types.UnicodeText, primary_key=True),
-        sa.Column('name', types.UnicodeText, nullable=False),
+        sa.Column('bot_id', types.UnicodeText, nullable=False),
         sa.Column('token', types.UnicodeText),
         sa.Column('groups', ARRAY(types.Integer)),
         sa.Column('org', types.UnicodeText),

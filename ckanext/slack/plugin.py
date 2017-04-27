@@ -4,16 +4,16 @@ import pprint
 import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+import ckanext.slack.model.slack_user as slack_user
 from slackclient import SlackClient
 from routes.mapper import SubMapper
 from sqlalchemy.inspection import inspect
 
-BOT_NAME = 'ckan_bot'
+#this will pose an issue, how do we get the id or name here???
+#this is probably passing to the config issue
+#bot = slack_user.Slack_user().get()
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-
 BOT_ID = os.environ.get("BOT_ID")
-AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "do"
 PREVIOUS_OPERATION = None
 
 class SlackPlugin(plugins.SingletonPlugin):

@@ -13,7 +13,6 @@ def slack_bot_update(slack_bot):
         s.bot_id = slack_bot['bot_id']
         s.token = slack_bot['token']
         groups = [slack_bot['groups']]
-        groups = map(int, groups)
         s.groups = groups
         s.org = slack_bot['org']
         s.create_dataset = slack_bot['create_dataset']
@@ -26,7 +25,6 @@ def slack_bot_update(slack_bot):
         s.bot_id = slack_bot['bot_id']
         s.token = slack_bot['token']
         groups = [slack_bot['groups']]
-        groups = map(int, groups)
         s.groups = groups
         s.org = slack_bot['org']
         s.create_dataset = slack_bot['create_dataset']

@@ -1,5 +1,6 @@
 import os
-import pdb
+import db
+import json
 import pprint
 import ckan.model.package as package
 import ckan.plugins as plugins
@@ -7,19 +8,47 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.slack.model.slack_user as slack_user
 from slackclient import SlackClient
 from routes.mapper import SubMapper
-from sqlalchemy.inspection import inspect
+from sqlalchemy import exc, inspect
 
 #this will pose an issue, how do we get the id or name here???
 #this is probably passing to the config issue
 #bot = slack_user.Slack_user().get()
-slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-BOT_ID = os.environ.get("BOT_ID")
+slack_client = None
+BOT_ID = None
 PREVIOUS_OPERATION = None
+
+def slack_config(id):
+
+    try:
+        context = {'for_view': True}
+        slack_config_options = slack_user.Slack_user().get(id)
+        global slack_client
+        slack_client = SlackClient(slack_config_options.token)
+        global BOT_ID
+        BOT_ID = slack_config_options.bot_id
+        form = db.table_dictize(slack_config_options, context)
+        jsonform = json.dumps(form)
+        return str(jsonform)
+    except exc.SQLAlchemyError:
+        return 'failure'
+
+group_type = u'grup'
+group_type_utf8 = group_type.encode('utf8')
+
+def get_slack_channels():
+    channels = slack_client.api_call('channels.list', exclude_archived=1)
+    return channels['channels']
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IMapper)
     plugins.implements(plugins.IRoutes, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers)
+
+    # Tell CKAN what custom template helper functions this plugin provides,
+    def get_helpers(self):
+        return {'slack_config': slack_config,
+                'get_slack_channels': get_slack_channels}
 
     #IConfigurer
     def update_config(self, config_):

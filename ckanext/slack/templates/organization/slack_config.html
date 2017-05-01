@@ -4,7 +4,7 @@
 {% set user = c.userobj %}
 {% set org = c.group_dict %}
 {% set form_info = h.slack_config(user.id + "." + org.id) or {} %}
-{% set slack_user = h.get_slack_user_data() %}
+{% set slack_user = h.get_slack_user_data(user.id + "." + org.id) or {} %}
 
 {% import 'macros/form.html' as form %}
 {{ config }}

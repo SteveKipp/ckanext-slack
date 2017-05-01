@@ -1,14 +1,12 @@
-import os
+
 import db
 import json
-import pprint
 import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.slack.model.slack_user as slack_user
 from slackclient import SlackClient
 from routes.mapper import SubMapper
-from sqlalchemy import exc, inspect
 from ckan.common import c
 
 slack_client = None
@@ -44,6 +42,13 @@ def get_slack_channels():
     except:
         return {}
 
+def get_slack_user_data(id):
+        try:
+            slack_bot_user = slack_user.Slack_user().get(id)
+            return slack_bot_user
+        except:
+            return {}
+
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
@@ -54,7 +59,8 @@ class SlackPlugin(plugins.SingletonPlugin):
     # Tell CKAN what custom template helper functions this plugin provides,
     def get_helpers(self):
         return {'slack_config': slack_config,
-                'get_slack_channels': get_slack_channels}
+                'get_slack_channels': get_slack_channels,
+                'get_slack_user_data': get_slack_user_data}
 
     #IConfigurer
     def update_config(self, config_):

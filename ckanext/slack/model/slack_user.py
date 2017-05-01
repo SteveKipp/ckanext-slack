@@ -28,9 +28,13 @@ class Slack_user(domain_object.DomainObject):
 
     @classmethod
     def get(cls, slack_user_reference):
-        query = meta.Session.query(cls).autoflush(False)
-        query = query.filter(or_(cls.id == slack_user_reference))
-        return query.first()
+        try:
+            query = meta.Session.query(cls).autoflush(False)
+            query = query.filter(or_(cls.id == slack_user_reference))
+            return query.first()
+        except exc.SQLAlchemyError:
+            meta.Session.rollback()
+            return 'failure'
 
 
 meta.mapper(Slack_user, slack_bot_table)

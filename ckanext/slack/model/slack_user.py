@@ -34,6 +34,7 @@ class Slack_user(domain_object.DomainObject):
             return query.first()
         except exc.SQLAlchemyError:
             meta.Session.rollback()
+            print(exc.SQLAlchemyError)
             return 'failure'
 
 

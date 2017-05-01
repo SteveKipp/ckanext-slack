@@ -17,16 +17,20 @@ def make_uuid():
     return unicode(uuid.uuid4())
 
 def init_db(model):
-    class _Slack_bot(model.DomainObject):
+    class _Slack_user(model.DomainObject):
 
         @classmethod
         def get(cls, slack_bot_reference):
-            query = query.filter(or_(cls.bot_id == slack_bot_reference,
-                                     cls.id == slack_bot_reference))
-            return query.first()
+            try:
+                query = query.filter(or_(cls.bot_id == slack_bot_reference,
+                                        cls.id == slack_bot_reference))
+                return query.first()
+            except:
+                model.Session.rollback()
 
-    global Slack_bot
-    Slack_bot = _Slack_bot
+
+    global Slack_user
+    Slack_user = _Slack_user
     # We will just try to create the table.  If it already exists we get an
     # error but we can just skip it and carry on.
     sql = '''
@@ -76,7 +80,7 @@ def init_db(model):
     model.Session.commit()
 
     types = sa.types
-    global slack_bot_table
+    global frontpage_table
     slack_bot_table = sa.Table('ckanext_slack_bot', model.meta.metadata,
         sa.Column('id', types.UnicodeText, primary_key=True),
         sa.Column('bot_id', types.UnicodeText, nullable=False),
@@ -90,7 +94,7 @@ def init_db(model):
     )
 
     model.meta.mapper(
-        Slack_bot,
+        Slack_user,
         slack_bot_table,
     )
 

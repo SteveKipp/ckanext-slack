@@ -36,4 +36,5 @@ def slack_bot_update(slack_bot):
         return 'success'
     except exc.SQLAlchemyError:
         session.rollback()
+        print(exc.SQLAlchemyError)
         return 'failure'

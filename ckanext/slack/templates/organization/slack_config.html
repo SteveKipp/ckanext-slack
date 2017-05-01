@@ -4,7 +4,7 @@
 {% set user = c.userobj %}
 {% set org = c.group_dict %}
 {% set form_info = h.slack_config(user.id + "." + org.id) or {}%}
-{% set slack_user = h.get_slack_user_data(user.id + "." + org.id)%}
+{% set slack_user = h.get_slack_user_data(user.id + "." + org.id) or {}%}
 
 {% import 'macros/form.html' as form %}
 {{ config }}
@@ -26,9 +26,11 @@
         Slack Groups</label>
     <div class="controls ">
     <select multiple id="field-ckanext.slack.groups" name="sgroups">
-        {% for channel in h.get_slack_channels() %}
-            <option value="{{ channel['name'] }}">{{ channel['name'] }}</option>
-        {% endfor %}
+        {% if slack_user != {} %}
+            {% for channel in h.get_slack_channels() %}
+                <option value="{{ channel['name'] }}">{{ channel['name'] }}</option>
+            {% endfor %}
+        {% endif %}
     </select>
     </div>
   </div>

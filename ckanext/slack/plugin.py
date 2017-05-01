@@ -11,32 +11,23 @@ from routes.mapper import SubMapper
 from sqlalchemy import exc, inspect
 from ckan.common import c
 
-try:
-    slack_client = SlackClient(os.environ['SLACK_TOKEN'])
-    print(os.environ['SLACK_TOKEN'])
-except:
-    slack_client = None
-
-
-try:
-    BOT_ID = os.environ['BOT_ID']
-    print(os.environ['BOT_ID'])
-except:
-    BOT_ID = None
+slack_client = None
+BOT_ID = None
 
 PREVIOUS_OPERATION = None
 
-#issue is that this isn't getting called until the slack info form is called.
-#this need to be stored in a config anf then called ^ (above with the none statements)
 def slack_config(id):
 
     try:
         context = {'for_view': True}
         slack_config_options = slack_user.Slack_user().get(id)
-        global slack_client
-        global BOT_ID
-        slack_client = SlackClient(slack_config_options.token)
-        BOT_ID = slack_config_options.bot_id
+
+        if slack_config_options != None:
+            global slack_client
+            global BOT_ID
+            slack_client = SlackClient(slack_config_options.token)
+            BOT_ID = slack_config_options.bot_id
+
         form = db.table_dictize(slack_config_options, context)
         json_form = json.dumps(form)
         return str(json_form)
@@ -47,12 +38,18 @@ group_type = u'grup'
 group_type_utf8 = group_type.encode('utf8')
 
 def get_slack_channels():
-    channels = slack_client.api_call('channels.list', exclude_archived=1)
-    return channels['channels']
+    try:
+        channels = slack_client.api_call('channels.list', exclude_archived=1)
+        return channels['channels']
+    except:
+        return {}
 
 def get_slack_user_data(id):
-    slack_bot_user =  slack_user.Slack_user().get(id)
-    return slack_bot_user
+    try:
+        slack_bot_user =  slack_user.Slack_user().get(id)
+        return slack_bot_user
+    except:
+        return {}
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)

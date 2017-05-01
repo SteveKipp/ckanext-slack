@@ -49,10 +49,20 @@ class SlackController(base.BaseController):
                 delete_dataset = False
 
             #print(data['organization'])
-            slack_bot = {'id': data['user_id'] + "." + data['organization'],
+            try:
+                slack_bot = {'id': data['user_id'] + "." + data['organization'],
                                  'bot_id': data['ckanext.slack.bot_id'],
                                  'token': data['ckanext.slack.token'],
                                  'groups': data['sgroups'],
+                                 'org': data['organization'],
+                                 'create_dataset': create_dataset,
+                                 'update_dataset': update_dataset,
+                                 'delete_dataset': delete_dataset}
+            except:
+                slack_bot = {'id': data['user_id'] + "." + data['organization'],
+                                 'bot_id': data['ckanext.slack.bot_id'],
+                                 'token': data['ckanext.slack.token'],
+                                 'groups': [],
                                  'org': data['organization'],
                                  'create_dataset': create_dataset,
                                  'update_dataset': update_dataset,

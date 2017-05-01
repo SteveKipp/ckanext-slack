@@ -1,3 +1,5 @@
+
+import re
 import ckan.model.domain_object as domain_object
 import ckan.model.meta as meta
 import ckan.model as model
@@ -17,10 +19,12 @@ slack_bot_table = Table('ckanext_slack_bot', model.meta.metadata,
          Column('create_dataset', types.Boolean),
          Column('update_dataset', types.Boolean),
          Column('delete_dataset', types.Boolean),
-         extend_existing=True
 )
 
 class Slack_user(domain_object.DomainObject):
+
+    VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
+    DOUBLE_SLASH = re.compile(':\/([^/])')
 
     @classmethod
     def get(cls, slack_user_reference):

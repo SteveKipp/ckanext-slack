@@ -44,12 +44,6 @@ def get_slack_channels():
     except:
         return {}
 
-def get_slack_user_data():
-    try:
-        slack_bot_user = slack_config
-        return slack_bot_user
-    except:
-        return {}
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
@@ -60,8 +54,7 @@ class SlackPlugin(plugins.SingletonPlugin):
     # Tell CKAN what custom template helper functions this plugin provides,
     def get_helpers(self):
         return {'slack_config': slack_config,
-                'get_slack_channels': get_slack_channels,
-                'get_slack_user_data': get_slack_user_data}
+                'get_slack_channels': get_slack_channels}
 
     #IConfigurer
     def update_config(self, config_):

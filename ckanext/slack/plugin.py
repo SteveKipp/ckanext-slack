@@ -87,36 +87,36 @@ class SlackPlugin(plugins.SingletonPlugin):
         pkg = package.Package().get(id)
         if pkg != None:
             slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)
+            if slack_user_data != None:
+                global slack_client
+                if slack_client == None:
+                    slack_client = SlackClient(slack_user_data.token)
 
-            global slack_client
-            if slack_client == None:
-                slack_client = SlackClient(slack_user_data.token)
+                user_pref = self.get_edit_type(pkg)
 
-            user_pref = self.get_edit_type(pkg)
+                global PREVIOUS_OPERATION
+                if pkg.state != 'deleted':
+                    if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created' and 'update' in user_pref:
+                        PREVIOUS_OPERATION = 'updated'
+                        msg = "Dataset Notice: The {} dataset has been updated.".format(pkg.title)
+                    elif edit_type == 'created':
+                        PREVIOUS_OPERATION = 'created'
+                        if 'create' in user_pref:
+                            msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
+                    elif PREVIOUS_OPERATION == 'created' and pkg.state != 'draft' and 'update' in user_pref:
+                        PREVIOUS_OPERATION = 'updated'
+                else:
+                    if 'delete' in user_pref:
+                        PREVIOUS_OPERATION = 'deleted'
+                        msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
 
-            global PREVIOUS_OPERATION
-            if pkg.state != 'deleted':
-                if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created' and 'update' in user_pref:
-                    PREVIOUS_OPERATION = 'updated'
-                    msg = "Dataset Notice: The {} dataset has been updated.".format(pkg.title)
-                elif edit_type == 'created':
-                    PREVIOUS_OPERATION = 'created'
-                    if 'create' in user_pref:
-                        msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
-                elif PREVIOUS_OPERATION == 'created' and pkg.state != 'draft' and 'update' in user_pref:
-                    PREVIOUS_OPERATION = 'updated'
-            else:
-                if 'delete' in user_pref:
-                    PREVIOUS_OPERATION = 'deleted'
-                    msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
-
-            try:
-                for group in slack_user_data.groups:
-                    print
-                    slack_client.api_call("chat.postMessage", channel=group,
-                                        text=msg, as_user=True)
-            except:
-                pass
+                try:
+                    for group in slack_user_data.groups:
+                        print
+                        slack_client.api_call("chat.postMessage", channel=group,
+                                              text=msg, as_user=True)
+                except:
+                    pass
 
 
 

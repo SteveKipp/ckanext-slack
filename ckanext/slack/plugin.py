@@ -9,26 +9,37 @@ import ckanext.slack.model.slack_user as slack_user
 from slackclient import SlackClient
 from routes.mapper import SubMapper
 from sqlalchemy import exc, inspect
+from ckan.common import c
 
-#this will pose an issue, how do we get the id or name here???
-#this is probably passing to the config issue
-#bot = slack_user.Slack_user().get()
-slack_client = None
-BOT_ID = None
+try:
+    slack_client = SlackClient(os.environ['SLACK_TOKEN'])
+    print(os.environ['SLACK_TOKEN'])
+except:
+    slack_client = None
+
+
+try:
+    BOT_ID = os.environ['BOT_ID']
+    print(os.environ['BOT_ID'])
+except:
+    BOT_ID = None
+
 PREVIOUS_OPERATION = None
 
+#issue is that this isn't getting called until the slack info form is called.
+#this need to be stored in a config anf then called ^ (above with the none statements)
 def slack_config(id):
 
     try:
         context = {'for_view': True}
         slack_config_options = slack_user.Slack_user().get(id)
         global slack_client
-        slack_client = SlackClient(slack_config_options.token)
         global BOT_ID
+        slack_client = SlackClient(slack_config_options.token)
         BOT_ID = slack_config_options.bot_id
         form = db.table_dictize(slack_config_options, context)
-        jsonform = json.dumps(form)
-        return str(jsonform)
+        json_form = json.dumps(form)
+        return str(json_form)
     except exc.SQLAlchemyError:
         return 'failure'
 
@@ -39,6 +50,10 @@ def get_slack_channels():
     channels = slack_client.api_call('channels.list', exclude_archived=1)
     return channels['channels']
 
+def get_slack_user_data(id):
+    slack_bot_user =  slack_user.Slack_user().get(id)
+    return slack_bot_user
+
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IMapper)
@@ -48,7 +63,8 @@ class SlackPlugin(plugins.SingletonPlugin):
     # Tell CKAN what custom template helper functions this plugin provides,
     def get_helpers(self):
         return {'slack_config': slack_config,
-                'get_slack_channels': get_slack_channels}
+                'get_slack_channels': get_slack_channels,
+                'get_slack_user_data': get_slack_user_data}
 
     #IConfigurer
     def update_config(self, config_):
@@ -56,22 +72,46 @@ class SlackPlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'slack')
 
+    def get_edit_type(self, p):
+        types = []
+
+        if p is not None:
+            slack_bot_user = get_slack_user_data(c.userobj.id + "." + p.owner_org)
+            if slack_bot_user is not None and slack_bot_user.create_dataset is True:
+                types.append('create')
+            if slack_bot_user is not None and slack_bot_user.update_dataset is True:
+                types.append('update')
+            if slack_bot_user is not None and slack_bot_user.delete_dataset is True:
+                types.append('delete')
+
+        return types
+
     def talk(self, channel, edit_type, id):
         pkg = package.Package().get(id)
         if pkg != None:
+            slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)
+
+            global slack_client
+            if slack_client == None:
+                slack_client = SlackClient(slack_user_data.token)
+
+            user_pref = self.get_edit_type(pkg)
+
             global PREVIOUS_OPERATION
             if pkg.state != 'deleted':
-                if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created':
+                if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created' and 'update' in user_pref:
                     PREVIOUS_OPERATION = 'updated'
                     msg = "Dataset Notice: The {} dataset has been updated.".format(pkg.title)
                 elif edit_type == 'created':
                     PREVIOUS_OPERATION = 'created'
-                    msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
-                elif PREVIOUS_OPERATION == 'created' and pkg.state != 'draft':
+                    if 'create' in user_pref:
+                        msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
+                elif PREVIOUS_OPERATION == 'created' and pkg.state != 'draft' and 'update' in user_pref:
                     PREVIOUS_OPERATION = 'updated'
             else:
-                PREVIOUS_OPERATION = 'deleted'
-                msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
+                if 'delete' in user_pref:
+                    PREVIOUS_OPERATION = 'deleted'
+                    msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
 
             try:
                 slack_client.api_call("chat.postMessage", channel=channel,

@@ -37,8 +37,9 @@ group_type_utf8 = group_type.encode('utf8')
 
 def get_slack_channels():
     try:
-        channels = slack_client.api_call('channels.list', exclude_archived=1)
-        return channels['channels']
+        channels = slack_client.api_call('groups.list', exclude_archived=1)
+        print channels
+        return channels['groups']
     except:
         return {}
 
@@ -121,14 +122,14 @@ class SlackPlugin(plugins.SingletonPlugin):
         pass
 
     def after_update(self, mapper, connection, instance):
-        self.talk('general', 'updated', instance.id)
+        self.talk('datacatalog', 'updated', instance.id)
 
 
     def before_insert(self, mapper, connection, instance):
         pass
 
     def after_insert(self, mapper, connection, instance):
-        self.talk('general', 'created', instance.id)
+        self.talk('datacatalog', 'created', instance.id)
 
     def before_delete(self, mapper, connection, instance):
         pass

@@ -31,7 +31,7 @@ def slack_config(id):
         form = db.table_dictize(slack_config_options, context)
         json_form = json.dumps(form)
         return str(json_form)
-    except exc.SQLAlchemyError:
+    except:
         return 'failure'
 
 group_type = u'grup'
@@ -44,9 +44,9 @@ def get_slack_channels():
     except:
         return {}
 
-def get_slack_user_data(id):
+def get_slack_user_data():
     try:
-        slack_bot_user =  slack_user.Slack_user().get(id)
+        slack_bot_user = slack_config
         return slack_bot_user
     except:
         return {}

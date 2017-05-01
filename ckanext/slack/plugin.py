@@ -83,7 +83,7 @@ class SlackPlugin(plugins.SingletonPlugin):
 
         return types
 
-    def talk(self, channel, edit_type, id):
+    def talk(self, edit_type, id):
         pkg = package.Package().get(id)
         if pkg != None:
             slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)
@@ -111,8 +111,10 @@ class SlackPlugin(plugins.SingletonPlugin):
                     msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
 
             try:
-                slack_client.api_call("chat.postMessage", channel=channel,
-                                       text=msg, as_user=True)
+                for group in slack_user_data.groups:
+                    print
+                    slack_client.api_call("chat.postMessage", channel=group,
+                                        text=msg, as_user=True)
             except:
                 pass
 
@@ -122,14 +124,14 @@ class SlackPlugin(plugins.SingletonPlugin):
         pass
 
     def after_update(self, mapper, connection, instance):
-        self.talk('datacatalog', 'updated', instance.id)
+        self.talk('updated', instance.id)
 
 
     def before_insert(self, mapper, connection, instance):
         pass
 
     def after_insert(self, mapper, connection, instance):
-        self.talk('datacatalog', 'created', instance.id)
+        self.talk('created', instance.id)
 
     def before_delete(self, mapper, connection, instance):
         pass

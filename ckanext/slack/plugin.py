@@ -7,6 +7,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.slack.model.slack_user as slack_user
 from slackclient import SlackClient
 from routes.mapper import SubMapper
+from pylons import app_globals, config
 from ckan.common import c
 
 slack_client = None
@@ -86,6 +87,8 @@ class SlackPlugin(plugins.SingletonPlugin):
     def talk(self, edit_type, id):
         pkg = package.Package().get(id)
         if pkg != None:
+            url_base = app_globals.site_url[:len(app_globals.site_url) - 10]
+            url = url_base + toolkit.url_for(controller='package', action='read', id=pkg.name)
             slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)
             if slack_user_data != None:
                 global slack_client
@@ -96,18 +99,19 @@ class SlackPlugin(plugins.SingletonPlugin):
 
                 global PREVIOUS_OPERATION
                 if pkg.state != 'deleted':
-                    if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created' and 'update' in user_pref:
+                    if edit_type == 'updated' and pkg.state != 'draft' and PREVIOUS_OPERATION != 'created' and 'update' in user_pref and pkg.private is not True:
                         PREVIOUS_OPERATION = 'updated'
-                        msg = "Dataset Notice: The {} dataset has been updated.".format(pkg.title)
-                    elif edit_type == 'created':
+                        msg = "Dataset Notice: The {} dataset has been updated. Link here: {}".format(pkg.title, url)
+                    elif edit_type == 'created' and pkg.private is not True:
                         PREVIOUS_OPERATION = 'created'
-                        if 'create' in user_pref:
-                            msg = "Dataset Notice: The {} dataset has been created.".format(pkg.title)
+                        if 'create' in user_pref and pkg.private is not True:
+                            msg = "Dataset Notice: The {} dataset has been created. Link here: {}".format(pkg.title, url)
                     elif PREVIOUS_OPERATION == 'created' and pkg.state != 'draft' and 'update' in user_pref:
                         PREVIOUS_OPERATION = 'updated'
                 else:
-                    if 'delete' in user_pref:
+                    if 'delete' in user_pref and pkg.private is not True:
                         PREVIOUS_OPERATION = 'deleted'
+                        #do we want to put a link here?
                         msg = "Dataset Notice: the {} dataset has been removed.".format(pkg.title)
 
                 try:

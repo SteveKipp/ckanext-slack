@@ -28,7 +28,7 @@
     <select multiple id="field-ckanext.slack.groups" name="sgroups">
         {% if slack_user != {} %}
             {% for channel in h.get_slack_channels() %}
-                <option value="{{ channel['name'] }}">{{ channel['name'] }}</option>
+                <option value="{{ channel }}">{{ channel }}</option>
             {% endfor %}
         {% endif %}
     </select>

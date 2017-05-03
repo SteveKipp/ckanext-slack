@@ -38,9 +38,15 @@ group_type_utf8 = group_type.encode('utf8')
 
 def get_slack_channels():
     try:
-        channels = slack_client.api_call('groups.list', exclude_archived=1)
-        print channels
-        return channels['groups']
+        private = slack_client.api_call('groups.list', exclude_archived=1)
+        public = slack_client.api_call('channels.list', exclude_archived=1)
+        channel_objects = private['groups'] + public['channels']
+        channel_names = []
+        for channel in channel_objects:
+            channel_names.append(channel['name'])
+        channel_names = sorted(channel_names)
+        print channel_names
+        return channel_names
     except:
         return {}
 

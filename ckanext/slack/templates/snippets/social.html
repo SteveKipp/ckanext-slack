@@ -3,8 +3,24 @@
 
 {% block social_nav %}
     {{ super() }}
+    <script>
+        function postMessage() {
+            $.ajax({
+                url: "https://hooks.slack.com/services/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",
+                type: "POST",
+                data: "payload=" + JSON.stringify({"text":"Hello World"}),
+                dataType: "json",
+                success: function(){
+                    console.log("Success!")
+                }
+
+            })
+            console.log("this function is being run")
+        }
+    </script>
     <ul class="nav nav-simple">
-        <li class="nav-item"><a class="slack" id="slack-button" href="https://slack.com/oauth/authorize?scope=incoming-webhook&client_id=<client_id_here>&redirect_uri=https://monsanto-ckan.slack.com/"><i class="fa fa-slack" aria-hidden="true">
+        <li class="nav-item"><a class="slack" id="slack-button" href="https://slack.com/oauth/authorize?scope=incoming-webhook&client_id=170841541969.171580940131&redirect_uri=http://default.ckanhosted.dev:5000/frontdoor/dataset/test-dataset-23"><i class="fa fa-slack" aria-hidden="true">
         </i> Slack</a></li>
+        <li><button onclick="postMessage()">This button should post to slack</button></li>
     </ul>
 {% endblock %}

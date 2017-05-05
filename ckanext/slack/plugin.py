@@ -5,9 +5,9 @@ import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.slack.model.slack_user as slack_user
+import ckan.lib.helpers as h
 from slackclient import SlackClient
 from routes.mapper import SubMapper
-from pylons import app_globals, config
 from ckan.common import c
 
 slack_client = None
@@ -93,8 +93,8 @@ class SlackPlugin(plugins.SingletonPlugin):
     def talk(self, edit_type, id):
         pkg = package.Package().get(id)
         if pkg != None:
-            url_base = app_globals.site_url[:len(app_globals.site_url) - 10]
-            url = url_base + toolkit.url_for(controller='package', action='read', id=pkg.name)
+            url_base = h.get_site_protocol_and_host()
+            url = url_base[0]+ '://' + url_base[1] + toolkit.url_for(controller='package', action='read', id=pkg.name)
             slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)
             if slack_user_data != None:
                 global slack_client

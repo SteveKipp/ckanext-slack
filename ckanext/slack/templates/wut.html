@@ -1,0 +1,35 @@
+{% extends "page.html" %}
+
+{% set pkg_title = c.pkg_dict.title %}
+{% set pkg_url = h.full_current_url() %}
+{% set user = c.userobj %}
+
+{% block primary_content_inner %}
+<script>
+        function post1Message(){
+            var token = sessionStorage.getItem("slack_user_token")
+            console.log(token)
+            var slack_message = document.getElementById('slackMessage').value
+            $.ajax({
+                url: "https://slack.com/api/chat.postMessage",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "text="+slack_message
+                                      +"&as_user=false"
+                                      +"&uername=ckan_bot"
+                                      +"&token="+token
+                                      +"&channel=random",
+                dataType: "json",
+                success: function(){
+                    console.log("Success!")
+                }
+
+            })
+            console.log("{{ pkg }}")
+        }
+</script>
+
+<textarea id="slackMessage" placeholder="Checkout this dataset"> </textarea>
+</br>
+<button onclick="post1Message()">post to slack</button>
+{% endblock %}

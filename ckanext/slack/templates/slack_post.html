@@ -1,0 +1,43 @@
+{% extends "page.html" %}
+
+{% set pkg_url = h.full_current_url() %}
+{% set user = c.userobj %}
+
+{% block styles %}
+    {{ super() }}
+    {% resource 'slack/slack_window.css' %}
+{% endblock %}
+
+{% block primary_content_inner %}
+<script>
+        function post1Message(){
+            var token = sessionStorage.getItem("slack_user_token")
+            var slack_message = document.getElementById('slackMessage').value
+            var channel = document.getElementById('channelSelect').value
+            $.ajax({
+                url: "https://slack.com/api/chat.postMessage",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "text="+slack_message+"&as_user=false"+"&uername=ckan_bot"+"&token="+token+"&channel="+channel,
+                dataType: "json",
+                success: function(){
+                    console.log("Success!")
+                }
+
+            })
+        }
+</script>
+{% if h.get_slack_channels() != {}%}
+    <textarea id="slackMessage" placeholder="Hey, Checkout this Dataset!"></textarea>
+    </br>
+    <select id="channelSelect">
+        {% for channel in h.get_slack_channels() %}
+            <option value="{{ channel }}">{{ channel }}</option>
+        {% endfor %}
+    </select>
+    </br>
+    <button id="postButton" onclick="post1Message()">post to slack</button>
+{% else %}
+    <p>Please make sure that slack is configured correctly, by your administrator.</p>
+{% endif %}
+{% endblock %}

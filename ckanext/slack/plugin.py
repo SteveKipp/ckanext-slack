@@ -45,7 +45,6 @@ def get_slack_channels():
         for channel in channel_objects:
             channel_names.append(channel['name'])
         channel_names = sorted(channel_names)
-        print channel_names
         return channel_names
     except:
         return {}

@@ -24,6 +24,7 @@
                 dataType: "json",
                 success: function(){
                     console.log("Success!")
+                    window.close()
                 }
 
             })
@@ -40,12 +41,13 @@
     </script>
     </br>
     <select id="channelSelect">
+            <option value="None">None</option>
         {% for channel in h.get_slack_channels() %}
             <option value="{{ channel }}">{{ channel }}</option>
         {% endfor %}
     </select>
     </br>
-    <button id="postButton" onclick="post1Message()">post to slack</button>
+    <button class="btn btn-primary" id="postButton" onclick="post1Message()">post to slack</button>
 {% else %}
     <p>Please make sure that slack is configured correctly, by your administrator.</p>
 {% endif %}

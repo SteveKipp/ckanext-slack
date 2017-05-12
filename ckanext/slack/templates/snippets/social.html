@@ -5,7 +5,7 @@
 {% set user = c.userobj %}
 {% set organization  = c.pkg_dict.owner_org %}
 {% set slack_user = h.get_slack_user_data(user.id + "." + organization) or {} %}
-{% set config = h.slack_config(user.id + "." + organization) %}
+{% set config = h.get_slack_config() %}
 
 
 {% block social_nav %}

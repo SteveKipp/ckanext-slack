@@ -40,6 +40,10 @@ group_type_utf8 = group_type.encode('utf8')
 
 def get_slack_channels():
     try:
+        global slack_client
+        global BOT_ID
+        slack_client = SlackClient(config['ckan.slackbot_token'])
+        BOT_ID = config['ckan.slackbot_id']
         private = slack_client.api_call('groups.list', exclude_archived=1)
         public = slack_client.api_call('channels.list', exclude_archived=1)
         channel_objects = private['groups'] + public['channels']
@@ -58,6 +62,9 @@ def get_slack_user_data(id):
         except:
             return {}
 
+def get_slack_config():
+    return config
+
 
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
@@ -69,7 +76,8 @@ class SlackPlugin(plugins.SingletonPlugin):
     def get_helpers(self):
         return {'slack_config': slack_config,
                 'get_slack_channels': get_slack_channels,
-                'get_slack_user_data': get_slack_user_data}
+                'get_slack_user_data': get_slack_user_data,
+                'get_slack_config': get_slack_config}
 
     #IConfigurer
     def update_config(self, config_):

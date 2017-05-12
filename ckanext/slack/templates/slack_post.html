@@ -12,6 +12,7 @@
 <script>
         function post1Message(){
             var token = sessionStorage.getItem("slack_user_token")
+            var bot = sessionStorage.getItem()
             var slack_message = document.getElementById('slackMessage').value
             var channel = document.getElementById('channelSelect').value
             $.ajax({
@@ -22,13 +23,21 @@
                 dataType: "json",
                 success: function(){
                     console.log("Success!")
+                    window.close()
                 }
 
             })
         }
 </script>
 {% if h.get_slack_channels() != {}%}
-    <textarea id="slackMessage" placeholder="Hey, Checkout this Dataset!"></textarea>
+    <textarea id="slackMessage"></textarea>
+    <script>
+        var pkg_title = sessionStorage.getItem("pkg_title");
+        var pkg_url = sessionStorage.getItem("pkg_url");
+        console.log(pkg_title)
+        console.log(pkg_url)
+        document.getElementById('slackMessage').value = "\""+pkg_title+"\": "+pkg_url;
+    </script>
     </br>
     <select id="channelSelect">
         {% for channel in h.get_slack_channels() %}

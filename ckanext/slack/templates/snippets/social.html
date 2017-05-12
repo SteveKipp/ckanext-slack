@@ -5,6 +5,7 @@
 {% set user = c.userobj %}
 {% set organization  = c.pkg_dict.owner_org %}
 {% set slack_user = h.get_slack_user_data(user.id + "." + organization) or {} %}
+{% set config = h.slack_config(user.id + "." + organization) %}
 
 
 {% block social_nav %}
@@ -12,7 +13,10 @@
     <script>
         function slackEditWindow(){
             var slack_user_token = "{{ slack_user.token }}"
-            sessionStorage.setItem("slack_user_token", slack_user_token)
+            sessionStorage.setItem("slack_user_token", "{{ config['ckan.slackbot_token'] }}")
+            sessionStorage.setItem("slack_bot_id", "{{ config['ckan.slackbot_id'] }}")
+            sessionStorage.setItem("pkg_title", "{{ pkg_title }}")
+            sessionStorage.setItem("pkg_url", "{{ pkg_url }}")
 
             var slackWindow = window.open("/frontdoor/slack_post.html", "", "width=600, height=300, scrollbars=0")
         }

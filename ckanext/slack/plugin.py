@@ -9,9 +9,11 @@ import ckan.lib.helpers as h
 from slackclient import SlackClient
 from routes.mapper import SubMapper
 from ckan.common import c
+from pylons import config
 
-slack_client = None
-BOT_ID = None
+
+slack_client = config['ckan.slackbot_token']
+BOT_ID = config['ckan.slackbot_id']
 
 PREVIOUS_OPERATION = None
 

@@ -101,7 +101,7 @@ class SlackPlugin(plugins.SingletonPlugin):
 
     def talk(self, edit_type, id):
         pkg = package.Package().get(id)
-        if pkg != None:
+        if pkg != None and pkg.owner_org is not None:
             url_base = h.get_site_protocol_and_host()
             url = url_base[0]+ '://' + url_base[1] + toolkit.url_for(controller='package', action='read', id=pkg.name)
             slack_user_data = get_slack_user_data(c.userobj.id + "." + pkg.owner_org)

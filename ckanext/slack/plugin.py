@@ -164,6 +164,6 @@ class SlackPlugin(plugins.SingletonPlugin):
         with SubMapper(map, controller=controller) as m:
             m.connect('ckanext_slack_config',
                       '/organization/slack_config/{id}',
-                      action='slack_config', ckan_icon='bullhorn', id='{id}')
+                      action='slack_config', ckan_icon='fa fa-slack', id='{id}')
         return map
 

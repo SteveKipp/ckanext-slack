@@ -88,7 +88,7 @@ class SlackPlugin(plugins.SingletonPlugin):
     def get_edit_type(self, p):
         types = []
 
-        if p is not None:
+        if p is not None and p.owner_org is not None:
             slack_bot_user = get_slack_user_data(c.userobj.id + "." + p.owner_org)
             if slack_bot_user is not None and slack_bot_user.create_dataset is True:
                 types.append('create')

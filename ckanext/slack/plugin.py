@@ -56,10 +56,10 @@ def get_slack_channels():
         return {}
 
 def get_slack_user_data(id):
-        try:
+        if db.slack_bot_table is not None:
             slack_bot_user = slack_user.Slack_user().get(id)
             return slack_bot_user
-        except:
+        else:
             return {}
 
 def get_slack_config():

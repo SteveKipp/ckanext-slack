@@ -101,7 +101,10 @@ class SlackPlugin(plugins.SingletonPlugin):
         return types
 
     def talk(self, edit_type, id):
-        pkg = package.Package().get(id)
+        if db.slack_bot_table is not None:
+            pkg = package.Package().get(id)
+        else:
+            pkg = None
             
         if pkg != None and pkg.owner_org is not None:
             url_base = h.get_site_protocol_and_host()

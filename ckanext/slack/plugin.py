@@ -88,19 +88,21 @@ class SlackPlugin(plugins.SingletonPlugin):
     def get_edit_type(self, p):
         types = []
 
-        if p is not None and p.owner_org is not None:
+        if p is not None:
             slack_bot_user = get_slack_user_data(c.userobj.id + "." + p.owner_org)
-            if slack_bot_user is not None and slack_bot_user.create_dataset is True:
-                types.append('create')
-            if slack_bot_user is not None and slack_bot_user.update_dataset is True:
-                types.append('update')
-            if slack_bot_user is not None and slack_bot_user.delete_dataset is True:
-                types.append('delete')
+            if slack_bot_user != {}:
+                if slack_bot_user is not None and slack_bot_user.create_dataset is True:
+                    types.append('create')
+                if slack_bot_user is not None and slack_bot_user.update_dataset is True:
+                    types.append('update')
+                if slack_bot_user is not None and slack_bot_user.delete_dataset is True:
+                    types.append('delete')
 
         return types
 
     def talk(self, edit_type, id):
         pkg = package.Package().get(id)
+            
         if pkg != None and pkg.owner_org is not None:
             url_base = h.get_site_protocol_and_host()
             url = url_base[0]+ '://' + url_base[1] + toolkit.url_for(controller='package', action='read', id=pkg.name)
@@ -136,7 +138,7 @@ class SlackPlugin(plugins.SingletonPlugin):
                                               text=msg, as_user=True)
                 except:
                     pass
-
+        print("this has completed")
 
 
     def before_update(self, mapper, connection, instance):

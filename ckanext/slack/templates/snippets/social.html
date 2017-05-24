@@ -4,7 +4,11 @@
 {% set pkg_url = h.full_current_url() %}
 {% set user = c.userobj %}
 {% set organization  = c.pkg_dict.owner_org %}
-{% set slack_user = h.get_slack_user_data(user.id + "." + organization) or {} %}
+{% if user != None %}
+    {% set slack_user = h.get_slack_user_data(user.id + "." + organization) or {} %}
+{% else %}
+    {% set slack_user = {} %}
+{% endif %}
 {% set config = h.get_slack_config() %}
 
 

@@ -22,11 +22,14 @@
             sessionStorage.setItem("pkg_title", "{{ pkg_title }}")
             sessionStorage.setItem("pkg_url", "{{ pkg_url }}")
 
-            var slackWindow = window.open("/frontdoor/slack_post.html", "", "width=600, height=300, scrollbars=0")
+            //webhook url goes here
+            var slackWindow = window.open("", "", "width=600, height=300, scrollbars=0")
         }
     </script>
     <ul class="nav nav-simple">
         <li class="nav-item" onclick="slackEditWindow()"><a class="slack" id="slack-button" href="#"><i class="fa fa-slack" aria-hidden="true">
         </i> Slack</a></li>
+
+
     </ul>
 {% endblock %}

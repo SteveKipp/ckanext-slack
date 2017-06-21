@@ -14,12 +14,16 @@
         var code = window.location.search.substr(1);
         code = code.substr(0, code.length - 6);
         channels = []
+
+        var client = sessionStorage.getItem("slack_client")
+        var secret = sessionStorage.getItem("slack_secret")
+
         //readd client id and secret
         $.ajax({
             url: "https://slack.com/api/oauth.access",
             type: "GET",
             contentType: "application/x-www-form-urlencoded; charset=utf-8",
-            data: "client_id=&client_secret="+code,
+            data: "client_id="+client+"&client_secret="+secret+"&"+code,
             dataType: "json",
             success: function (req) {
                 console.log("Success!")
@@ -90,7 +94,7 @@
                 dataType: "json",
                 success: function(){
                     console.log("Success!")
-                    //window.close()
+                    window.close()
                 }
             })
     }

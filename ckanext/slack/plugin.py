@@ -69,7 +69,6 @@ def get_slack_user_data(id):
 def get_slack_config():
     return config
 
-
 class SlackPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IMapper)

@@ -12,16 +12,13 @@
 {% set config = h.get_slack_config() %}
 
 
+
 {% block social_nav %}
     {{ super() }}
     <script>
         function slackEditWindow(){
             var slack_user_token = "{{ slack_user.token }}"
             var slack_client = "{{ config['ckan.slack_client'] }}"
-            sessionStorage.setItem("slack_user_token", "{{ config['ckan.slackbot_token'] }}")
-            sessionStorage.setItem("slack_client", "{{ config['ckan.slack_client'] }}")
-            sessionStorage.setItem("slack_secret", "{{ config['ckan.slack_secret'] }}")
-            sessionStorage.setItem("slack_bot_id", "{{ config['ckan.slackbot_id'] }}")
             sessionStorage.setItem("pkg_title", "{{ pkg_title }}")
             sessionStorage.setItem("pkg_url", "{{ pkg_url }}")
 

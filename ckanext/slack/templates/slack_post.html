@@ -80,7 +80,7 @@
         }
 
         window.onload = function () {
-            document.cookie = "slack_user_token=" + userToken;
+            document.cookie = "slack_user_token=" + userToken,"expires=";
             localStorage.setItem("slack_user_token", userToken);
             sessionStorage.setItem("slack_user_token", userToken);
             $.when(pubChan(userToken)).done(function () {

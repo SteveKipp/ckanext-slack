@@ -11,39 +11,15 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-        {{ user_token }}
+{{ user_token }}
 <script>
 
 
         channels = []
         pchannels = []
-        userToken = ""
+        userToken = "{{ user_token }}"
 
 
-        //read client id and secret
-        var client = sessionStorage.getItem("slack_client");
-        var secret = sessionStorage.getItem("slack_secret");
-
-        function auth() {
-            console.log(code)
-            console.log(client)
-            console.log(secret)
-            return $.ajax({
-                url: "https://slack.com/api/oauth.access",
-                type: "POST",
-                headers: {"content-type": "application/x-www-form-urlencoded"},
-                data: {"client_id": client,
-                      "client_secret": secret,
-                      "code": code},
-                success: function (req) {
-                    userToken = req.access_token;
-                    //window.close()
-
-                }
-
-            })
-
-        }
         function priChan(userToken) {
             return $.ajax({
                 url: "https://slack.com/api/groups.list",
@@ -104,23 +80,17 @@
         }
 
         window.onload = function () {
-            $.when(auth()).done(function (auth) {
-                tok =  auth.access_token
-                console.log(auth);
-                $.when(pubChan(tok)).done(function (){
-                    priChan(tok)
-
-
-                });
+            document.cookie = "slack_user_token=" + userToken;
+            localStorage.setItem("slack_user_token", userToken);
+            sessionStorage.setItem("slack_user_token", userToken);
+            $.when(pubChan(userToken)).done(function () {
+                priChan(userToken)
             });
 
 
         }
 
     function post1Message(){
-            var token = sessionStorage.getItem("slack_user_token")
-            var bot = sessionStorage.getItem("slack_bot_id")
-            console.log(bot)
             var slack_message = document.getElementById('slackMessage').value
             var channel = document.getElementById('channelSelect').value
             $.ajax({
@@ -141,13 +111,11 @@
     <script>
         var pkg_title = sessionStorage.getItem("pkg_title");
         var pkg_url = sessionStorage.getItem("pkg_url");
-        console.log(pkg_title)
-        console.log(pkg_url)
         document.getElementById('slackMessage').value = pkg_title+": "+pkg_url;
     </script>
     </br>
     <select id="channelSelect">
     </select>
     </br>
-    <button class="btn btn-primary" id="postButton" onclick="post1Message()">post to slack</button>
+    <button class="btn btn-primary" id="postButton" onclick="post1Message()">Post to slack</button>
 {% endblock %}

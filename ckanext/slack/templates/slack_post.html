@@ -3,8 +3,10 @@
 {% set pkg_url = h.full_current_url() %}
 {% set user = c.userobj %}
 {% set params = request.params %}
-{%  set get_token = h.get_slack_user_token(params.code) %}
-{%  set user_token = get_token['access_token'] %}
+{%  if params.code %}
+{% set get_token = h.get_slack_user_token(params.code) %}
+{% set user_token = get_token['access_token'] %}
+{%  endif %}
 {% block styles %}
     {{ super() }}
     {% resource 'slack/slack_window.css' %}
@@ -17,7 +19,12 @@
 
         channels = []
         pchannels = []
-        userToken = "{{ user_token }}"
+        if (localStorage.getItem('slack_user_token')){
+            userToken = localStorage.getItem('slack_user_token');
+
+        }else {
+            userToken = "{{ user_token }}"
+        };
 
 
         function priChan(userToken) {

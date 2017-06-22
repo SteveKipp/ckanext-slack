@@ -10,75 +10,105 @@
 
 {% block primary_content_inner %}
 <script>
-    window.onload = function() {
         var code = window.location.search.substr(1);
         code = code.substr(0, code.length - 6);
         channels = []
+        pchannels = []
+        userToken = ""
 
-        var client = sessionStorage.getItem("slack_client")
-        var secret = sessionStorage.getItem("slack_secret")
 
-        //readd client id and secret
-        $.ajax({
-            url: "https://slack.com/api/oauth.access",
-            type: "GET",
-            contentType: "application/x-www-form-urlencoded; charset=utf-8",
-            data: "client_id="+client+"&client_secret="+secret+"&"+code,
-            dataType: "json",
-            success: function (req) {
-                console.log("Success!")
-                console.log(req)
-                token1 = req.access_token;
-                //window.close()
-                $.ajax({
-                    url: "https://slack.com/api/channels.list",
-                    type: "GET",
-                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                    data: "token="+req.access_token,
-                    dataType: "json",
-                    success: function (req1) {
-                        console.log("Success!")
-                        console.log(req1)
-                        for(i = 0; i<req1.channels.length; i++){
-                            channels.push(req1.channels[i].name)
-                        }
-                        var sel = document.getElementById('channelSelect');
-                        for(var i = 0; i < channels.length; i++) {
-                            var opt = document.createElement('option');
-                            opt.innerHTML = channels[i];
-                            opt.value = channels[i];
-                            sel.appendChild(opt);
-                        }
+        //read client id and secret
+        var client = sessionStorage.getItem("slack_client");
+        var secret = sessionStorage.getItem("slack_secret");
+
+        function auth() {
+            return $.ajax({
+                url: "https://slack.com/api/oauth.access",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "client_id=" + client + "&client_secret=" + secret + "&" + code,
+                dataType: "json",
+                success: function (req) {
+                    userToken = req.access_token;
+                    //window.close()
+
+                }
+
+            })
+
+        }
+        function priChan(userToken) {
+            return $.ajax({
+                url: "https://slack.com/api/groups.list",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "token=" + userToken,
+                dataType: "json",
+                success: function (req2) {
+                    console.log("Success! Private")
+                    console.log(req2)
+                    for (i = 0; i < req2.groups.length; i++) {
+                        pchannels.push(req2.groups[i].name)
+                    }
+                    var sel = document.getElementById('channelSelect');
+
+                    var oplabel = document.createElement('optgroup');
+                    oplabel.label = "Private Channels";
+                    sel.appendChild(oplabel);
+                    for (var i = 0; i < pchannels.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.innerHTML = pchannels[i];
+                        opt.value = pchannels[i];
+                        sel.appendChild(opt);
                     }
 
-                })
-                $.ajax({
-                    url: "https://slack.com/api/groups.list",
-                    type: "GET",
-                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                    data: "token="+req.access_token,
-                    dataType: "json",
-                    success: function (req2) {
-                        console.log("Success!")
-                        console.log(req2)
-                        for(i = 0; i<req2.groups.length; i++){
-                            channels.push(req2.groups[i].name)
-                        }
-                        var sel = document.getElementById('channelSelect');
-                        for(var i = 0; i < channels.length; i++) {
-                            var opt = document.createElement('option');
-                            opt.innerHTML = channels[i];
-                            opt.value = channels[i];
-                            sel.appendChild(opt);
-                        }
+                }
 
+            });
+        }
+        function pubChan(userToken) {
+            return $.ajax({
+                url: "https://slack.com/api/channels.list",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "token=" + userToken,
+                dataType: "json",
+                success: function (req1) {
+                    console.log("Success! Public")
+                    console.log(req1)
+                    for (i = 0; i < req1.channels.length; i++) {
+                        channels.push(req1.channels[i].name)
                     }
+                    var sel = document.getElementById('channelSelect');
 
-                })
-            }
+                    var oplabel = document.createElement('optgroup');
+                    oplabel.label = "Public Channels";
+                    sel.appendChild(oplabel);
 
-        })
-    }
+                    for (var i = 0; i < channels.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.innerHTML = channels[i];
+                        opt.value = channels[i];
+                        sel.appendChild(opt);
+                    }
+                }
+
+            })
+        }
+
+        window.onload = function () {
+            $.when(auth()).done(function (auth) {
+                tok =  auth.access_token
+                console.log(auth);
+                $.when(pubChan(tok)).done(function (){
+                    priChan(tok)
+
+
+                });
+            });
+
+
+        }
 
     function post1Message(){
             var token = sessionStorage.getItem("slack_user_token")

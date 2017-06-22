@@ -11,6 +11,7 @@ from slackclient import SlackClient
 from routes.mapper import SubMapper
 from ckan.common import c
 from pylons import config
+import requests
 
 
 slack_client = config['ckan.slackbot_token']
@@ -20,6 +21,21 @@ PREVIOUS_OPERATION = None
 
 if db.slack_bot_table is None:
     db.init_db(model)
+
+
+def get_slack_user_token(code):
+
+    url = "https://slack.com/api/oauth.access"
+    payload = "client_id=" + config['ckan.slack_client'] + "&client_secret=" + config['ckan.slack_secret'] + \
+        "&code=" + code
+    headers = {
+        'content-type': "application/x-www-form-urlencoded"
+    }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+    resp_dict = json.loads(response.content)
+    return resp_dict
+
 
 def slack_config(id):
 
@@ -80,7 +96,8 @@ class SlackPlugin(plugins.SingletonPlugin):
         return {'slack_config': slack_config,
                 'get_slack_channels': get_slack_channels,
                 'get_slack_user_data': get_slack_user_data,
-                'get_slack_config': get_slack_config}
+                'get_slack_config': get_slack_config,
+                'get_slack_user_token': get_slack_user_token}
 
     #IConfigurer
     def update_config(self, config_):

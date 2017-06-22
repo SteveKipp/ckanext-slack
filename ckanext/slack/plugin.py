@@ -1,6 +1,7 @@
 
 import db
 import json
+import ckan.model as model
 import ckan.model.package as package
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
@@ -16,6 +17,9 @@ slack_client = config['ckan.slackbot_token']
 BOT_ID = config['ckan.slackbot_id']
 
 PREVIOUS_OPERATION = None
+
+if db.slack_bot_table is None:
+    db.init_db(model)
 
 def slack_config(id):
 

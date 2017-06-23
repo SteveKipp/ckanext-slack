@@ -3,15 +3,17 @@
     width: 75%;
 }
 
-#channelSelect{
-    margin-left: 20px;
-}
+
 
 #postButton{
     margin-left: 20px;
 }
 
-select optgroup{
 
-    font-weight: bold;
+
+#private{
+    margin-left: 20px;
+}
+#public{
+    margin-left: 20px;
 }

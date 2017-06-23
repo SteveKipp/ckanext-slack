@@ -95,12 +95,13 @@
 
     function post1Message(){
             var slack_message = document.getElementById('slackMessage').value
-            var channel = document.getElementById('channelSelect').value
+            var prichannel = document.getElementById('private').value
+            var pubchannel = document.getElementById('public').value
             $.ajax({
                 url: "https://slack.com/api/chat.postMessage",
                 type: "GET",
                 contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                data: "text="+slack_message+"&as_user=true&token="+userToken+"&channel="+channel,
+                data: "text="+slack_message+"&as_user=true&token="+userToken+"&channel="+pubchannel,
                 dataType: "json",
                 success: function(){
                     console.log("Success!")
@@ -117,13 +118,12 @@
         document.getElementById('slackMessage').value = pkg_title+": "+pkg_url;
     </script>
     </br>
-    <select id="channelSelect">
-    <optgroup label="Public Channels" id="public">
+    <select id="public">
+    <option disabled selected>Public Channels</option>
+    </select>
 
-    </optgroup>
-      <optgroup label="Private Channels" id="private">
-
-    </optgroup>
+        <select id="private">
+            <option disabled selected>Private Channels</option>
     </select>
     </br>
     <button class="btn btn-primary" id="postButton" onclick="post1Message()">Post to slack</button>

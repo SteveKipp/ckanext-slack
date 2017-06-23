@@ -40,11 +40,9 @@
                     for (i = 0; i < req2.groups.length; i++) {
                         pchannels.push(req2.groups[i].name)
                     }
-                    var sel = document.getElementById('channelSelect');
+                    var sel = document.getElementById('private');
 
-                    var oplabel = document.createElement('optgroup');
-                    oplabel.label = "Private Channels";
-                    sel.appendChild(oplabel);
+
                     for (var i = 0; i < pchannels.length; i++) {
                         var opt = document.createElement('option');
                         opt.innerHTML = pchannels[i];
@@ -69,11 +67,9 @@
                     for (i = 0; i < req1.channels.length; i++) {
                         channels.push(req1.channels[i].name)
                     }
-                    var sel = document.getElementById('channelSelect');
+                    var sel = document.getElementById('public');
 
-                    var oplabel = document.createElement('optgroup');
-                    oplabel.label = "Public Channels";
-                    sel.appendChild(oplabel);
+
 
                     for (var i = 0; i < channels.length; i++) {
                         var opt = document.createElement('option');
@@ -122,6 +118,12 @@
     </script>
     </br>
     <select id="channelSelect">
+    <optgroup label="Public Channels" id="public">
+
+    </optgroup>
+      <optgroup label="Private Channels" id="private">
+
+    </optgroup>
     </select>
     </br>
     <button class="btn btn-primary" id="postButton" onclick="post1Message()">Post to slack</button>

@@ -12,19 +12,22 @@
 {% set config = h.get_slack_config() %}
 
 
+
 {% block social_nav %}
     {{ super() }}
     <script>
-        function slackEditWindow(){
-            var slack_user_token = "{{ slack_user.token }}"
-            sessionStorage.setItem("slack_user_token", "{{ config['ckan.slackbot_token'] }}")
-            sessionStorage.setItem("slack_bot_id", "{{ config['ckan.slackbot_id'] }}")
-            sessionStorage.setItem("pkg_title", "{{ pkg_title }}")
-            sessionStorage.setItem("pkg_url", "{{ pkg_url }}")
+        function slackEditWindow() {
+            var slack_client = "{{ config['ckan.slack_client'] }}";
+            sessionStorage.setItem("pkg_title", "{{ pkg_title }}");
+            sessionStorage.setItem("pkg_url", "{{ pkg_url }}");
 
-            //webhook url goes here
-            var slackWindow = window.open("", "", "width=600, height=300, scrollbars=0")
-        }
+            //url goes here
+            if (localStorage.getItem('slack_user_token')) {
+                var postslack = window.open("/frontdoor/slack_post.html", "", "width=600, height=300, scrollbars=0")
+
+            }else {
+                var slackWindow = window.open("https://slack.com/oauth/authorize?&client_id=" + slack_client + "&scope=chat:write:user,channels:read,groups:read,groups:write", "", "width=600, height=300, scrollbars=0");
+            }}
     </script>
     <ul class="nav nav-simple">
         <li class="nav-item" onclick="slackEditWindow()"><a class="slack" id="slack-button" href="#"><i class="fa fa-slack" aria-hidden="true">

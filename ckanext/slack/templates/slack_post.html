@@ -2,7 +2,11 @@
 
 {% set pkg_url = h.full_current_url() %}
 {% set user = c.userobj %}
-
+{% set params = request.params %}
+{%  if params.code %}
+{% set get_token = h.get_slack_user_token(params.code) %}
+{% set user_token = get_token['access_token'] %}
+{%  endif %}
 {% block styles %}
     {{ super() }}
     {% resource 'slack/slack_window.css' %}
@@ -10,45 +14,136 @@
 
 {% block primary_content_inner %}
 <script>
-        function post1Message(){
-            var token = sessionStorage.getItem("slack_user_token")
-            var bot = sessionStorage.getItem("slack_bot_id")
-            console.log(bot)
-            var slack_message = document.getElementById('slackMessage').value
-            var channel = document.getElementById('channelSelect').value
-            $.ajax({
-                url: "https://slack.com/api/chat.postMessage",
+
+
+        channels = []
+        pchannels = []
+        if (localStorage.getItem('slack_user_token')){
+            userToken = localStorage.getItem('slack_user_token');
+
+        }else {
+            userToken = "{{ user_token }}"
+        };
+
+
+        function priChan(userToken) {
+            return $.ajax({
+                url: "https://slack.com/api/groups.list",
                 type: "GET",
                 contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                data: "text="+slack_message+"&as_user=false"+"&username="+bot+"&token="+token+"&channel="+channel,
+                data: "token=" + userToken,
                 dataType: "json",
-                success: function(){
-                    console.log("Success!")
-                    window.close()
+                success: function (req2) {
+                    console.log("Success! Private")
+                    console.log(req2)
+                    for (i = 0; i < req2.groups.length; i++) {
+                        pchannels.push(req2.groups[i].name)
+                    }
+                    var sel = document.getElementById('private');
+
+
+                    for (var i = 0; i < pchannels.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.innerHTML = pchannels[i];
+                        opt.value = pchannels[i];
+                        sel.appendChild(opt);
+                    }
+
+                }
+
+            });
+        }
+        function pubChan(userToken) {
+            return $.ajax({
+                url: "https://slack.com/api/channels.list",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                data: "token=" + userToken,
+                dataType: "json",
+                success: function (req1) {
+                    console.log("Success! Public")
+                    console.log(req1)
+                    for (i = 0; i < req1.channels.length; i++) {
+                        channels.push(req1.channels[i].name)
+                    }
+                    var sel = document.getElementById('public');
+
+
+
+                    for (var i = 0; i < channels.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.innerHTML = channels[i];
+                        opt.value = channels[i];
+                        sel.appendChild(opt);
+                    }
                 }
 
             })
         }
+
+        window.onload = function () {
+            document.cookie = "slack_user_token=" + userToken,"expires=";
+            localStorage.setItem("slack_user_token", userToken);
+            sessionStorage.setItem("slack_user_token", userToken);
+
+            $('#public').change(function() {
+                $('#private').val('Private Channels').attr('selected', 'selected');
+            });
+
+            $('#private').change(function() {
+                $('#public').val('Public Channels').attr('selected', 'selected');
+            });
+            $.when(pubChan(userToken)).done(function () {
+                priChan(userToken)
+            });
+
+
+        }
+
+    function post1Message(message, channel){
+        $.ajax({
+            url: "https://slack.com/api/chat.postMessage",
+            type: "GET",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            data: "text="+message+"&as_user=true&token="+userToken+"&channel="+channel,
+            dataType: "json",
+            success: function(){
+                console.log("Success!")
+                window.close()
+            }
+        });
+    }
+
+    function checkChannel(){
+        var slack_message = document.getElementById('slackMessage').value
+        var prichannel = document.getElementById('private').value
+        var pubchannel = document.getElementById('public').value
+
+        if(pubchannel != "Public Channels"){
+            post1Message(slack_message, pubchannel);
+        } else if (prichannel != "Private Channels") {
+            post1Message(slack_message, prichannel);
+        } else {
+            alert('You must select a channel')
+        }
+    }
+
 </script>
-{% if h.get_slack_channels() != {}%}
     <textarea id="slackMessage"></textarea>
     <script>
         var pkg_title = sessionStorage.getItem("pkg_title");
         var pkg_url = sessionStorage.getItem("pkg_url");
-        console.log(pkg_title)
-        console.log(pkg_url)
         document.getElementById('slackMessage').value = pkg_title+": "+pkg_url;
     </script>
     </br>
-    <select id="channelSelect">
-            <option value="None">None</option>
-        {% for channel in h.get_slack_channels() %}
-            <option value="{{ channel }}">{{ channel }}</option>
-        {% endfor %}
+    <select id="public">
+        <option disabled selected value="Public Channels">Public Channels</option>
     </select>
+
+    <select id="private">
+        <option disabled selected value="Private Channels">Private Channels</option>
+    </select>
+    <p id="slackNotes">You can only post to one channel at a time. <i class="fa fa-question-circle" aria-hidden="true"></i></p>
     </br>
-    <button class="btn btn-primary" id="postButton" onclick="post1Message()">post to slack</button>
-{% else %}
-    <p>Please make sure that slack is configured correctly, by your administrator.</p>
-{% endif %}
+    <button class="btn btn-primary" id="postButton" onclick="checkChannel()">Post to slack</button>
 {% endblock %}

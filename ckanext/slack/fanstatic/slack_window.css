@@ -3,10 +3,20 @@
     width: 75%;
 }
 
-#channelSelect{
+
+
+#postButton{
     margin-left: 20px;
 }
 
-#postButton{
+
+
+#private{
+    margin-left: 20px;
+}
+#public{
+    margin-left: 20px;
+}
+#slackNotes{
     margin-left: 20px;
 }
